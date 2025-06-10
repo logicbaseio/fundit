@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vehicle Loan Calculator</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="calculator-card">
+            <div class="header">
+                <img src="fundit-logo.svg" alt="Fundit" class="logo">
+                <h1>Vehicle Loan Calculator</h1>
+            </div>
+            
+            <div class="main-content">
+                <div class="left-section">
+                    <div class="form-section">
+                        <div class="input-group">
+                            <label for="vehiclePrice">Total Price of Vehicle</label>
+                            <div class="price-display">
+                                <span class="currency">$</span>
+                                <span id="priceValue">25000</span>
+                            </div>
+                            <input type="range" id="vehiclePrice" min="5000" max="100000" step="500" value="25000" class="price-slider">
+                            <div class="slider-labels">
+                                <span>$5,000</span>
+                                <span>$100,000</span>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="depositAmount">Deposit Amount</label>
+                            <div class="input-wrapper">
+                                <span class="currency">$</span>
+                                <input type="number" id="depositAmount" value="10000" min="0" placeholder="10000">
+                            </div>
+                            <p class="help-text">Total amount of cash deposit used in this purchase. The larger your deposit the smaller the loan you will need to finance this purchase.</p>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="loanTerm">Loan Term</label>
+                            <select id="loanTerm">
+                                <option value="12" selected>12 months</option>
+                                <option value="24">24 months</option>
+                                <option value="36">36 months</option>
+                                <option value="48">48 months</option>
+                                <option value="60">60 months</option>
+                                <option value="72">72 months</option>
+                                <option value="84">84 months</option>
+                            </select>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="interestRate">Interest Rate (%)</label>
+                            <div class="input-wrapper">
+                                <input type="number" id="interestRate" value="5.00" min="0" max="30" step="0.01" placeholder="5.00">
+                                <span class="percent">%</span>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <div class="checkbox-wrapper">
+                                <input type="checkbox" id="hasBalloonPayment" class="checkbox">
+                                <label for="hasBalloonPayment" class="checkbox-label">Has balloon payment?</label>
+                            </div>
+                        </div>
+
+                        <div class="input-group balloon-payment-group" id="balloonPaymentGroup" style="display: none;">
+                            <label for="balloonPayment">Balloon Payment Amount</label>
+                            <div class="input-wrapper">
+                                <span class="currency">$</span>
+                                <input type="number" id="balloonPayment" value="0" min="0" placeholder="0">
+                            </div>
+                            <p class="help-text">A lump sum payment due at the end of the loan term.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="total-interest">
+                        <h3>Total Interest Cost</h3>
+                        <div class="interest-amount" id="totalInterest">$471.78</div>
+                    </div>
+                </div>
+                
+                <div class="right-section">
+                    <div class="chart-section">
+                        <h3>Balance over time</h3>
+                        <canvas id="balanceChart" width="400" height="200"></canvas>
+                        <div class="chart-legend">
+                            <span class="legend-item">
+                                <span class="legend-color"></span>
+                                Principal balance by payment
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="result-card">
+                        <h2>Your estimated monthly loan payment is <span id="monthlyPayment" class="highlight">$471.78</span>.</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
