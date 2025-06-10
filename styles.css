@@ -210,6 +210,42 @@ select:focus {
     font-size: 0.85rem;
     color: #666;
     line-height: 1.4;
+    margin-top: 5px;
+}
+
+.checkbox-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 5px 0;
+}
+
+.checkbox {
+    width: 18px;
+    height: 18px;
+    accent-color: #3498db;
+    cursor: pointer;
+}
+
+.checkbox-label {
+    font-weight: 600;
+    color: #2c3e50;
+    font-size: 0.95rem;
+    cursor: pointer;
+    margin: 0;
+}
+
+.balloon-payment-group {
+    transition: all 0.3s ease;
+    opacity: 0;
+    max-height: 0;
+    overflow: hidden;
+}
+
+.balloon-payment-group.show {
+    opacity: 1;
+    max-height: 200px;
+    display: flex !important;
 }
 
 

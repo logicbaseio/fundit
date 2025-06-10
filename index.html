@@ -59,6 +59,22 @@
                                 <span class="percent">%</span>
                             </div>
                         </div>
+
+                        <div class="input-group">
+                            <div class="checkbox-wrapper">
+                                <input type="checkbox" id="hasBalloonPayment" class="checkbox">
+                                <label for="hasBalloonPayment" class="checkbox-label">Has balloon payment?</label>
+                            </div>
+                        </div>
+
+                        <div class="input-group balloon-payment-group" id="balloonPaymentGroup" style="display: none;">
+                            <label for="balloonPayment">Balloon Payment Amount</label>
+                            <div class="input-wrapper">
+                                <span class="currency">$</span>
+                                <input type="number" id="balloonPayment" value="0" min="0" placeholder="0">
+                            </div>
+                            <p class="help-text">A lump sum payment due at the end of the loan term.</p>
+                        </div>
                     </div>
                     
                     <div class="total-interest">

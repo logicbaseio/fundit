@@ -7,6 +7,9 @@ const interestRate = document.getElementById('interestRate');
 const monthlyPayment = document.getElementById('monthlyPayment');
 const totalInterest = document.getElementById('totalInterest');
 const balanceChart = document.getElementById('balanceChart');
+const hasBalloonPayment = document.getElementById('hasBalloonPayment');
+const balloonPaymentGroup = document.getElementById('balloonPaymentGroup');
+const balloonPayment = document.getElementById('balloonPayment');
 
 // Initialize calculator
 document.addEventListener('DOMContentLoaded', function() {
@@ -19,6 +22,8 @@ document.addEventListener('DOMContentLoaded', function() {
     depositAmount.addEventListener('input', calculateLoan);
     loanTerm.addEventListener('change', calculateLoan);
     interestRate.addEventListener('input', calculateLoan);
+    hasBalloonPayment.addEventListener('change', toggleBalloonPayment);
+    balloonPayment.addEventListener('input', calculateLoan);
 });
 
 // Update price display with formatting
@@ -32,12 +37,30 @@ function formatCurrency(amount) {
     return new Intl.NumberFormat('en-US').format(amount);
 }
 
+// Toggle balloon payment field visibility
+function toggleBalloonPayment() {
+    if (hasBalloonPayment.checked) {
+        balloonPaymentGroup.style.display = 'flex';
+        balloonPaymentGroup.classList.add('show');
+    } else {
+        balloonPaymentGroup.classList.remove('show');
+        setTimeout(() => {
+            if (!hasBalloonPayment.checked) {
+                balloonPaymentGroup.style.display = 'none';
+            }
+        }, 300);
+        balloonPayment.value = '0';
+    }
+    calculateLoan();
+}
+
 // Main loan calculation function
 function calculateLoan() {
     const vehiclePrice = parseFloat(vehiclePriceSlider.value) || 0;
     const deposit = parseFloat(depositAmount.value) || 0;
     const termMonths = parseInt(loanTerm.value) || 12;
     const annualRate = parseFloat(interestRate.value) || 5;
+    const balloonAmount = hasBalloonPayment.checked ? (parseFloat(balloonPayment.value) || 0) : 0;
     
     // Calculate loan amount
     const loanAmount = Math.max(0, vehiclePrice - deposit);
@@ -54,18 +77,40 @@ function calculateLoan() {
     // Calculate monthly interest rate
     const monthlyRate = annualRate / 100 / 12;
     
-    // Calculate monthly payment using loan formula
+    // Calculate monthly payment
     let monthly = 0;
-    if (monthlyRate > 0) {
-        monthly = loanAmount * (monthlyRate * Math.pow(1 + monthlyRate, termMonths)) / 
-                 (Math.pow(1 + monthlyRate, termMonths) - 1);
-    } else {
-        monthly = loanAmount / termMonths;
-    }
+    let totalInterestAmount = 0;
     
-    // Calculate total interest
-    const totalPayments = monthly * termMonths;
-    const totalInterestAmount = totalPayments - loanAmount;
+    if (balloonAmount > 0) {
+        // Calculate monthly payment with balloon payment
+        if (monthlyRate > 0) {
+            const presentValueOfBalloon = balloonAmount / Math.pow(1 + monthlyRate, termMonths);
+            const amortizingAmount = loanAmount - presentValueOfBalloon;
+            
+            if (amortizingAmount > 0) {
+                monthly = amortizingAmount * (monthlyRate * Math.pow(1 + monthlyRate, termMonths)) / 
+                         (Math.pow(1 + monthlyRate, termMonths) - 1);
+            }
+            
+            // Calculate total interest including balloon payment interest
+            const totalPayments = (monthly * termMonths) + balloonAmount;
+            totalInterestAmount = totalPayments - loanAmount;
+        } else {
+            monthly = (loanAmount - balloonAmount) / termMonths;
+            totalInterestAmount = 0;
+        }
+    } else {
+        // Standard loan calculation without balloon payment
+        if (monthlyRate > 0) {
+            monthly = loanAmount * (monthlyRate * Math.pow(1 + monthlyRate, termMonths)) / 
+                     (Math.pow(1 + monthlyRate, termMonths) - 1);
+        } else {
+            monthly = loanAmount / termMonths;
+        }
+        
+        const totalPayments = monthly * termMonths;
+        totalInterestAmount = totalPayments - loanAmount;
+    }
     
     // Update display
     monthlyPayment.textContent = '$' + monthly.toFixed(2);
@@ -74,12 +119,12 @@ function calculateLoan() {
     }
     
     // Generate amortization schedule for chart
-    const schedule = generateAmortizationSchedule(loanAmount, monthlyRate, monthly, termMonths);
+    const schedule = generateAmortizationSchedule(loanAmount, monthlyRate, monthly, termMonths, balloonAmount);
     drawChart(schedule);
 }
 
 // Generate amortization schedule
-function generateAmortizationSchedule(principal, monthlyRate, monthlyPayment, termMonths) {
+function generateAmortizationSchedule(principal, monthlyRate, monthlyPayment, termMonths, balloonAmount = 0) {
     const schedule = [];
     let remainingBalance = principal;
     
@@ -90,7 +135,13 @@ function generateAmortizationSchedule(principal, monthlyRate, monthlyPayment, te
         }
         
         const interestPayment = remainingBalance * monthlyRate;
-        const principalPayment = monthlyPayment - interestPayment;
+        let principalPayment = monthlyPayment - interestPayment;
+        
+        // Handle balloon payment on the last month
+        if (month === termMonths && balloonAmount > 0) {
+            principalPayment += balloonAmount;
+        }
+        
         remainingBalance = Math.max(0, remainingBalance - principalPayment);
         
         schedule.push({ month: month, balance: remainingBalance });
