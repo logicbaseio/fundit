@@ -5,11 +5,12 @@ const depositAmount = document.getElementById('depositAmount');
 const loanTerm = document.getElementById('loanTerm');
 const interestRate = document.getElementById('interestRate');
 const monthlyPayment = document.getElementById('monthlyPayment');
-const totalInterest = document.getElementById('totalInterest');
 const balanceChart = document.getElementById('balanceChart');
 const hasBalloonPayment = document.getElementById('hasBalloonPayment');
 const balloonPaymentGroup = document.getElementById('balloonPaymentGroup');
-const balloonPayment = document.getElementById('balloonPayment');
+const balloonPaymentPercentage = document.getElementById('balloonPaymentPercentage');
+const balloonPercentageValue = document.getElementById('balloonPercentageValue');
+const balloonAmountDisplay = document.getElementById('balloonAmountDisplay');
 
 // Initialize calculator
 document.addEventListener('DOMContentLoaded', function() {
@@ -23,7 +24,8 @@ document.addEventListener('DOMContentLoaded', function() {
     loanTerm.addEventListener('change', calculateLoan);
     interestRate.addEventListener('input', calculateLoan);
     hasBalloonPayment.addEventListener('change', toggleBalloonPayment);
-    balloonPayment.addEventListener('input', calculateLoan);
+    balloonPaymentPercentage.addEventListener('input', updateBalloonDisplay);
+    balloonPaymentPercentage.addEventListener('input', calculateLoan);
 });
 
 // Update price display with formatting
@@ -42,6 +44,7 @@ function toggleBalloonPayment() {
     if (hasBalloonPayment.checked) {
         balloonPaymentGroup.style.display = 'flex';
         balloonPaymentGroup.classList.add('show');
+        updateBalloonDisplay();
     } else {
         balloonPaymentGroup.classList.remove('show');
         setTimeout(() => {
@@ -49,9 +52,21 @@ function toggleBalloonPayment() {
                 balloonPaymentGroup.style.display = 'none';
             }
         }, 300);
-        balloonPayment.value = '0';
+        balloonPaymentPercentage.value = '15';
     }
     calculateLoan();
+}
+
+// Update balloon payment percentage display
+function updateBalloonDisplay() {
+    const percentage = parseInt(balloonPaymentPercentage.value);
+    const vehiclePrice = parseFloat(vehiclePriceSlider.value) || 0;
+    const deposit = parseFloat(depositAmount.value) || 0;
+    const loanAmount = Math.max(0, vehiclePrice - deposit);
+    const balloonAmount = (loanAmount * percentage) / 100;
+    
+    balloonPercentageValue.textContent = percentage;
+    balloonAmountDisplay.textContent = `($${formatCurrency(balloonAmount)})`;
 }
 
 // Main loan calculation function
@@ -60,16 +75,21 @@ function calculateLoan() {
     const deposit = parseFloat(depositAmount.value) || 0;
     const termMonths = parseInt(loanTerm.value) || 12;
     const annualRate = parseFloat(interestRate.value) || 5;
-    const balloonAmount = hasBalloonPayment.checked ? (parseFloat(balloonPayment.value) || 0) : 0;
     
     // Calculate loan amount
     const loanAmount = Math.max(0, vehiclePrice - deposit);
     
+    // Calculate balloon amount from percentage
+    const balloonPercentage = hasBalloonPayment.checked ? (parseInt(balloonPaymentPercentage.value) || 15) : 0;
+    const balloonAmount = hasBalloonPayment.checked ? (loanAmount * balloonPercentage) / 100 : 0;
+    
+    // Update balloon display if balloon payment is enabled
+    if (hasBalloonPayment.checked) {
+        updateBalloonDisplay();
+    }
+    
     if (loanAmount === 0) {
         monthlyPayment.textContent = '$0.00';
-        if (totalInterest) {
-            totalInterest.textContent = '$0.00';
-        }
         drawChart([]);
         return;
     }
@@ -79,7 +99,6 @@ function calculateLoan() {
     
     // Calculate monthly payment
     let monthly = 0;
-    let totalInterestAmount = 0;
     
     if (balloonAmount > 0) {
         // Calculate monthly payment with balloon payment
@@ -92,9 +111,7 @@ function calculateLoan() {
                          (Math.pow(1 + monthlyRate, termMonths) - 1);
             }
             
-            // Calculate total interest including balloon payment interest
-            const totalPayments = (monthly * termMonths) + balloonAmount;
-            totalInterestAmount = totalPayments - loanAmount;
+
         } else {
             monthly = (loanAmount - balloonAmount) / termMonths;
             totalInterestAmount = 0;
@@ -107,16 +124,11 @@ function calculateLoan() {
         } else {
             monthly = loanAmount / termMonths;
         }
-        
-        const totalPayments = monthly * termMonths;
-        totalInterestAmount = totalPayments - loanAmount;
+
     }
     
     // Update display
     monthlyPayment.textContent = '$' + monthly.toFixed(2);
-    if (totalInterest) {
-        totalInterest.textContent = '$' + totalInterestAmount.toFixed(2);
-    }
     
     // Generate amortization schedule for chart
     const schedule = generateAmortizationSchedule(loanAmount, monthlyRate, monthly, termMonths, balloonAmount);
