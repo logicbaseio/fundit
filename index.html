@@ -68,19 +68,21 @@
                         </div>
 
                         <div class="input-group balloon-payment-group" id="balloonPaymentGroup" style="display: none;">
-                            <label for="balloonPayment">Balloon Payment Amount</label>
-                            <div class="input-wrapper">
-                                <span class="currency">$</span>
-                                <input type="number" id="balloonPayment" value="0" min="0" placeholder="0">
+                            <label for="balloonPaymentPercentage">Balloon Payment Percentage</label>
+                            <div class="balloon-percentage-display">
+                                <span id="balloonPercentageValue">15</span><span class="percent">%</span>
+                                <span class="balloon-amount" id="balloonAmountDisplay">($3,750)</span>
                             </div>
-                            <p class="help-text">A lump sum payment due at the end of the loan term.</p>
+                            <input type="range" id="balloonPaymentPercentage" min="1" max="100" step="1" value="15" class="balloon-slider">
+                            <div class="slider-labels">
+                                <span>1%</span>
+                                <span>100%</span>
+                            </div>
+                            <p class="help-text">This percentage is of the Loan Amount (Total Price of Vehicle - Deposited Amount).</p>
                         </div>
                     </div>
                     
-                    <div class="total-interest">
-                        <h3>Total Interest Cost</h3>
-                        <div class="interest-amount" id="totalInterest">$471.78</div>
-                    </div>
+
                 </div>
                 
                 <div class="right-section">
