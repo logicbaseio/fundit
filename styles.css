@@ -25,7 +25,7 @@ body {
 .calculator-card {
     background: transparent;
     border-radius: 12px;
-    box-shadow: none;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
     padding: 40px;
     width: 100%;
     max-width: 1000px;
